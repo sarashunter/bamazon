@@ -43,12 +43,23 @@ const managerMenu = (inventory) => {
             case 'View Products for Sale':
             viewProducts(inventory);
             break;
+
+            case 'View Low Inventory':
+            viewLowInventory(inventory);
+            break;
+
+
         }
     })
 }
 
 const viewProducts = inventory =>{
-    console.log('viewing products');
     console.table(inventory);
+    mainmenu(inventory);
+}
+
+const viewLowInventory = inventory =>{
+    const lowitems = inventory.filter(item => item.stock_quantity < 10);
+    console.table(lowitems);
     mainmenu(inventory);
 }

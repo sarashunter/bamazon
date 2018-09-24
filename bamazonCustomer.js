@@ -16,7 +16,7 @@ connection.connect(err => {
         console.error(`error connection: ${err}`);
     }
 
-    console.log('connected!');
+    // console.log('connected!');
     loadProducts();
     
 });

@@ -28,13 +28,18 @@ const mainMenu = () => {
         message: 'What would you like to do?',
         name: 'action',
         choices: ['View Product Sales by Department', 'Create New Department']
-    }]).then((err, res) =>{
+    }]).then(res =>{
+        console.log(res);
         if (res.action === 'View Product Sales by Department'){
             showSales();
         }
     })
 }
 
-// const showSales = () => {
-//     connection.query
-// }
+const showSales = () => {
+    connection.query('SELECT d.department_id, d.department_name, d.over_head_costs, SUM(p.product_sales ) AS product_sales, SUM(p.product_sales )-d.over_head_costs AS total_profit FROM departments d JOIN products p ON p.department_name = d.department_name GROUP BY p.department_name;', (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        mainMenu();
+    })
+}

@@ -27,19 +27,47 @@ const mainMenu = () => {
         type: 'list',
         message: 'What would you like to do?',
         name: 'action',
-        choices: ['View Product Sales by Department', 'Create New Department']
-    }]).then(res =>{
-        console.log(res);
-        if (res.action === 'View Product Sales by Department'){
+        choices: ['View Product Sales by Department', 'Create New Department', 'Quit']
+    }]).then(res => {
+
+        if (res.action === 'View Product Sales by Department') {
             showSales();
+        } else if (res.action === 'Create New Department') {
+            createDept();
+        } else {
+            console.log("Have a nice day.");
+            process.exit(0);
         }
     })
 }
 
 const showSales = () => {
-    connection.query('SELECT d.department_id, d.department_name, d.over_head_costs, SUM(p.product_sales ) AS product_sales, SUM(p.product_sales )-d.over_head_costs AS total_profit FROM departments d JOIN products p ON p.department_name = d.department_name GROUP BY p.department_name;', (err, res) => {
+    connection.query('SELECT d.department_id, d.department_name, d.over_head_costs, SUM(p.product_sales ) AS product_sales, SUM(p.product_sales )-d.over_head_costs AS total_profit FROM departments d LEFT JOIN products p ON p.department_name = d.department_name GROUP BY p.department_name;', (err, res) => {
         if (err) throw err;
         console.table(res);
         mainMenu();
+    })
+}
+
+const createDept = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'department_name',
+            message: 'What is the name of the department?'
+        },
+        {
+            type: 'input',
+            name: 'over_head_costs',
+            message: 'What are the overhead costs for the department?',
+            validate: val => !isNaN(val)
+        }
+    ]).then(res => {
+        connection.query('INSERT INTO departments(department_name, over_head_costs) VALUES (?, ?)', [res.department_name, res. over_head_costs], (err, res) => {
+            if (err) throw err;
+            console.log('Department added');
+            mainMenu();
+        }
+        )
     })
 }

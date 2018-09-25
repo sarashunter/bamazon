@@ -107,7 +107,7 @@ const makePurchase = (product, quantity) => {
         [quantity, thisSale, product.item_id],
         function(err, res) {
           // Let the user know the purchase was successful, re-run loadProducts
-          console.log("\nSuccessfully purchased " + quantity + " " + product.product_name + "'s!");
+          console.log("\nSuccessfully purchased " + quantity + " " + product.product_name + "s!");
           loadProducts();
         }
       );

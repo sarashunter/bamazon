@@ -44,15 +44,15 @@ const managerMenu = (inventory, depts) => {
 
         switch (res.mainmenu) {
             case 'View Products for Sale':
-                viewProducts(inventory);
+                viewProducts(inventory, depts);
                 break;
 
             case 'View Low Inventory':
-                viewLowInventory(inventory);
+                viewLowInventory(inventory, depts);
                 break;
 
             case 'Add to Inventory':
-                addInventory(inventory);
+                addInventory(inventory, depts);
                 break;
 
             case 'Add New Product':
@@ -66,20 +66,20 @@ const managerMenu = (inventory, depts) => {
 }
 
 //Console logs the products as a table.
-const viewProducts = inventory => {
+const viewProducts = (inventory, depts) => {
     console.table(inventory);
-    managerMenu(inventory);
+    managerMenu(inventory, depts);
 }
 
 //Console logs the products with stock quantity below 5 as a table.
-const viewLowInventory = inventory => {
+const viewLowInventory = (inventory, depts) => {
     const lowitems = inventory.filter(item => item.stock_quantity < 5);
     console.table(lowitems);
-    managerMenu(inventory);
+    managerMenu(inventory, depts);
 }
 
 //Adds to the stock quantity of a given item.
-const addInventory = inventory => {
+const addInventory = (inventory, depts) => {
     console.table(inventory);
 
     inquirer.prompt([{
@@ -100,14 +100,14 @@ const addInventory = inventory => {
         connection.query("UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?", [res.quantity, res.itemid], (err, res) => {
             if (err) throw err;
 
-            updateInventoryArray(inventory);
+            updateInventoryArray(inventory, depts);
         });
     });
 }
 
 //Allows the user to add a product to the database.
 const addProduct = (inventory, depts) => {
-    console.log(depts);
+
     inquirer.prompt([
         {
             type: 'input',
@@ -135,13 +135,13 @@ const addProduct = (inventory, depts) => {
     ]).then(res => {
         checkIfShouldExit(res.stock_quantity);
 
-        connection.query("INSERT INTO products(product_name, department_name, price, stock_quantity) VALUES (?, ?,?, ?)", [res.product_name, res.department_name, res.price, res.stock_quantity], (err, response) => {
+        connection.query("INSERT INTO products(product_name, department_name, price, stock_quantity, product_sales) VALUES (?, ?,?, ?, 0)", [res.product_name, res.department_name, res.price, res.stock_quantity], (err, response) => {
             if (err) throw err;
 
             console.log(`
 ${res.stock_quantity} ${res.product_name} added to inventory.
             `)
-            updateInventoryArray(inventory);
+            updateInventoryArray(inventory, depts);
         })
     })
 }

@@ -11,4 +11,10 @@ CREATE TABLE products(
     PRIMARY KEY (item_id)
 );
 
+CREATE TABLE departments(
+	department_id INTEGER AUTO_INCREMENT NOT NULL,
+    department_name VARCHAR(30) NOT NULL,
+    over_head_costs DECIMAL(10,2)
+);
+
 SELECT * from products;

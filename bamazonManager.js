@@ -38,11 +38,10 @@ const managerMenu = (inventory, depts) => {
         {
             type: 'list',
             name: 'mainmenu',
-            choices: ['View Products for Sale', 'View Low Inventory', 'Add to Inventory', 'Add New Product'],
+            choices: ['View Products for Sale', 'View Low Inventory', 'Add to Inventory', 'Add New Product', 'Quit'],
             message: 'What would you like to do?'
         }
     ]).then(res => {
-        console.log(res);
 
         switch (res.mainmenu) {
             case 'View Products for Sale':
@@ -59,6 +58,9 @@ const managerMenu = (inventory, depts) => {
 
             case 'Add New Product':
                 addProduct(inventory, depts);
+                break;
+            case 'Quit':
+                checkIfShouldExit('q');
                 break;
         }
     })
@@ -83,24 +85,22 @@ const addInventory = inventory => {
         name: 'itemid',
         message: 'Choose the item id of the item you would to add to inventory',
         choices: inventory.map(item => item.item_id.toString())
-    }]).then(res => {
-        inquirer.prompt([
-            {
-                type: 'input',
-                name: 'quantity',
-                message: 'How many would you like to add?',
-                validate: val => !isNaN(val) || val.toLowerCase() === "q"
-            }
-        ]).then(quant => {
-            console.log('You added ' + quant.quantity);
+    },
+    {
+        type: 'input',
+        name: 'quantity',
+        message: 'How many would you like to add? [Quit with Q]',
+        validate: val => !isNaN(val) || val.toLowerCase() === "q"
+    }
+    ]).then(res => {
+        console.log('You added ' + res.quantity);
 
-            connection.query("UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?", [quant.quantity, res.itemid], (err, res) => {
-                if (err) throw err;
+        connection.query("UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?", [res.quantity, res.itemid], (err, res) => {
+            if (err) throw err;
 
-                updateInventoryArray(inventory);
-            });
-        })
-    })
+            updateInventoryArray(inventory);
+        });
+    });
 }
 
 const addProduct = (inventory, depts) => {
@@ -120,15 +120,17 @@ const addProduct = (inventory, depts) => {
         {
             type: 'input',
             name: 'price',
-            message: 'What is the price of an item?'
+            message: 'What is the price of an item?',
+            validate: val => !isNaN(val)
         },
         {
             type: 'input',
             name: 'stock_quantity',
-            message: 'What quantity do you have?',
+            message: 'What quantity do you have? [Quit with Q]',
             validate: val => !isNaN(val) || val.toLowerCase() === "q"
         }
     ]).then(res => {
+        checkIfShouldExit(res.stock_quantity);
 
         connection.query("INSERT INTO products(product_name, department_name, price, stock_quantity) VALUES (?, ?,?, ?)", [res.product_name, res.department_name, res.price, res.stock_quantity], (err, response) => {
             if (err) throw err;
@@ -148,4 +150,12 @@ const getExistingDepts = () => {
 
         updateInventoryArray([], result);
     });
+}
+
+const checkIfShouldExit = choice => {
+
+    if (choice.toLowerCase() === 'q') {
+        console.log("Have a nice day.");
+        process.exit(0);
+    }
 }

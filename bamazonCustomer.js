@@ -62,7 +62,7 @@ const promptCustomerForItem = inventory =>{
 const checkIfShouldExit = choice => {
 
     if (choice.toLowerCase() === 'q'){
-        console.log("Don't let the screen hit you");
+        console.log("Have a nice day");
         process.exit(0);
     }
 }

@@ -1,10 +1,13 @@
 # bamazon
 Bamazon is a node command line interface application for inventory management.  It uses a MySQL database to track quantities of items.  It allows users to 'purchase' items and updates the expected quantities.
 
-There are three views built in for different users: Customer, Manager, and Supervisor.
+There are three views built in for different users: Customers, Managers, and Supervisors.
 
 ## Installation
-To run this node application, create a local database using the given schema and seeds files for data.  Update the connection within each of the bamazon.js files.  Install the modules required in the package.json using NPM.
+To run this node application, create a local database using the given schema and seeds files for data.  Update the connection within each of the bamazon.js files to your database and port.  Install the modules required in the package.json using NPM.
+
+### Dependencies
+mysql, inquirer, console.table
 
 ## Customer Interface
 When a customer initially opens Bamazon, they are shown the available items, prices, and quantities available and prompted to enter the id of the item they wish to 'purchase.'

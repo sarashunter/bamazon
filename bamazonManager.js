@@ -24,7 +24,7 @@ connection.connect(err => {
 
 });
 
-const updateInventoryArray = (inventory, depts) =>{
+const updateInventoryArray = (inventory, depts) => {
     connection.query("SELECT * FROM products", (err, res) => {
         if (err) throw err;
 
@@ -93,11 +93,10 @@ const addInventory = inventory => {
             }
         ]).then(quant => {
             console.log('You added ' + quant.quantity);
-            console.log('id ' + res.itemid
-            )
+
             connection.query("UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?", [quant.quantity, res.itemid], (err, res) => {
                 if (err) throw err;
-                console.log('here');
+
                 updateInventoryArray(inventory);
             });
         })
@@ -105,7 +104,7 @@ const addInventory = inventory => {
 }
 
 const addProduct = (inventory, depts) => {
-console.log(depts);
+    console.log(depts);
     inquirer.prompt([
         {
             type: 'input',
@@ -114,20 +113,39 @@ console.log(depts);
         },
         {
             type: 'list',
-            name: 'department',
+            name: 'department_name',
             message: 'What department sells the item?',
             choices: depts
+        },
+        {
+            type: 'input',
+            name: 'price',
+            message: 'What is the price of an item?'
+        },
+        {
+            type: 'input',
+            name: 'stock_quantity',
+            message: 'What quantity do you have?',
+            validate: val => !isNaN(val) || val.toLowerCase() === "q"
         }
     ]).then(res => {
-        console.log(res.product_name + " " + res.department);
+
+        connection.query("INSERT INTO products(product_name, department_name, price, stock_quantity) VALUES (?, ?,?, ?)", [res.product_name, res.department_name, res.price, res.stock_quantity], (err, response) => {
+            if (err) throw err;
+
+            console.log(`
+${res.stock_quantity} ${res.product_name} added to inventory.
+            `)
+            updateInventoryArray(inventory);
+        })
     })
 }
 
-const getExistingDepts = () =>{
-    console.log('in here');
+const getExistingDepts = () => {
+
     connection.query("SELECT DISTINCT department_name FROM products", (err, res) => {
         const result = res.map(item => item.department_name);
-        console.log(result);
+
         updateInventoryArray([], result);
     });
 }

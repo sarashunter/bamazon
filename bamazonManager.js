@@ -20,19 +20,20 @@ connection.connect(err => {
     // console.log('connected!');
 
     //Copy products to an array for quick access.
-    updateInventoryArray([]);
+    getExistingDepts();
 
 });
 
-const updateInventoryArray = (inventory) =>{
+const updateInventoryArray = (inventory, depts) =>{
     connection.query("SELECT * FROM products", (err, res) => {
         if (err) throw err;
 
-        managerMenu(res);
+        managerMenu(res, depts);
     });
 }
 
-const managerMenu = (inventory) => {
+const managerMenu = (inventory, depts) => {
+
     inquirer.prompt([
         {
             type: 'list',
@@ -54,6 +55,10 @@ const managerMenu = (inventory) => {
 
             case 'Add to Inventory':
                 addInventory(inventory);
+                break;
+
+            case 'Add New Product':
+                addProduct(inventory, depts);
                 break;
         }
     })
@@ -97,4 +102,32 @@ const addInventory = inventory => {
             });
         })
     })
+}
+
+const addProduct = (inventory, depts) => {
+console.log(depts);
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'product_name',
+            message: 'What is the name of the product?'
+        },
+        {
+            type: 'list',
+            name: 'department',
+            message: 'What department sells the item?',
+            choices: depts
+        }
+    ]).then(res => {
+        console.log(res.product_name + " " + res.department);
+    })
+}
+
+const getExistingDepts = () =>{
+    console.log('in here');
+    connection.query("SELECT DISTINCT department_name FROM products", (err, res) => {
+        const result = res.map(item => item.department_name);
+        console.log(result);
+        updateInventoryArray([], result);
+    });
 }

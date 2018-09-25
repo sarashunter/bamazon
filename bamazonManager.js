@@ -20,13 +20,17 @@ connection.connect(err => {
     // console.log('connected!');
 
     //Copy products to an array for quick access.
+    updateInventoryArray([]);
+
+});
+
+const updateInventoryArray = (inventory) =>{
     connection.query("SELECT * FROM products", (err, res) => {
-        if(err) throw err;
+        if (err) throw err;
 
         managerMenu(res);
     });
-
-});
+}
 
 const managerMenu = (inventory) => {
     inquirer.prompt([
@@ -39,27 +43,58 @@ const managerMenu = (inventory) => {
     ]).then(res => {
         console.log(res);
 
-        switch (res.mainmenu){
+        switch (res.mainmenu) {
             case 'View Products for Sale':
-            viewProducts(inventory);
-            break;
+                viewProducts(inventory);
+                break;
 
             case 'View Low Inventory':
-            viewLowInventory(inventory);
-            break;
+                viewLowInventory(inventory);
+                break;
 
-
+            case 'Add to Inventory':
+                addInventory(inventory);
+                break;
         }
     })
 }
 
-const viewProducts = inventory =>{
+const viewProducts = inventory => {
     console.table(inventory);
-    mainmenu(inventory);
+    managerMenu(inventory);
 }
 
-const viewLowInventory = inventory =>{
-    const lowitems = inventory.filter(item => item.stock_quantity < 10);
+const viewLowInventory = inventory => {
+    const lowitems = inventory.filter(item => item.stock_quantity < 5);
     console.table(lowitems);
-    mainmenu(inventory);
+    managerMenu(inventory);
+}
+
+const addInventory = inventory => {
+    console.table(inventory);
+
+    inquirer.prompt([{
+        type: 'list',
+        name: 'itemid',
+        message: 'Choose the item id of the item you would to add to inventory',
+        choices: inventory.map(item => item.item_id.toString())
+    }]).then(res => {
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'quantity',
+                message: 'How many would you like to add?',
+                validate: val => !isNaN(val) || val.toLowerCase() === "q"
+            }
+        ]).then(quant => {
+            console.log('You added ' + quant.quantity);
+            console.log('id ' + res.itemid
+            )
+            connection.query("UPDATE products SET stock_quantity = stock_quantity + ? WHERE item_id = ?", [quant.quantity, res.itemid], (err, res) => {
+                if (err) throw err;
+                console.log('here');
+                updateInventoryArray(inventory);
+            });
+        })
+    })
 }

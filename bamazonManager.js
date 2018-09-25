@@ -1,7 +1,7 @@
+//Requirements
 const mysql = require('mysql');
 const inquirer = require('inquirer');
 require('console.table');
-
 
 const connection = mysql.createConnection({
     host: 'localhost',
@@ -17,13 +17,12 @@ connection.connect(err => {
         console.error(`error connection: ${err}`);
     }
 
-    // console.log('connected!');
-
-    //Copy products to an array for quick access.
+    //On connection, check for distinct department names in DB.
     getExistingDepts();
 
 });
 
+//Copy items from the db to an array for quick access.
 const updateInventoryArray = (inventory, depts) => {
     connection.query("SELECT * FROM products", (err, res) => {
         if (err) throw err;
@@ -60,23 +59,26 @@ const managerMenu = (inventory, depts) => {
                 addProduct(inventory, depts);
                 break;
             case 'Quit':
-                checkIfShouldExit('q');
+                checkIfShouldExit('q'); //Uses q to trigger an exit.
                 break;
         }
     })
 }
 
+//Console logs the products as a table.
 const viewProducts = inventory => {
     console.table(inventory);
     managerMenu(inventory);
 }
 
+//Console logs the products with stock quantity below 5 as a table.
 const viewLowInventory = inventory => {
     const lowitems = inventory.filter(item => item.stock_quantity < 5);
     console.table(lowitems);
     managerMenu(inventory);
 }
 
+//Adds to the stock quantity of a given item.
 const addInventory = inventory => {
     console.table(inventory);
 
@@ -103,6 +105,7 @@ const addInventory = inventory => {
     });
 }
 
+//Allows the user to add a product to the database.
 const addProduct = (inventory, depts) => {
     console.log(depts);
     inquirer.prompt([
@@ -143,6 +146,7 @@ ${res.stock_quantity} ${res.product_name} added to inventory.
     })
 }
 
+//Run at the beginning to get the distinct departments in case the user wishes to add an item.
 const getExistingDepts = () => {
 
     connection.query("SELECT DISTINCT department_name FROM products", (err, res) => {
@@ -152,6 +156,7 @@ const getExistingDepts = () => {
     });
 }
 
+//Used to check if the user wants to exit.
 const checkIfShouldExit = choice => {
 
     if (choice.toLowerCase() === 'q') {

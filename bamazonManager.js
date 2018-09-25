@@ -149,7 +149,7 @@ ${res.stock_quantity} ${res.product_name} added to inventory.
 //Run at the beginning to get the distinct departments in case the user wishes to add an item.
 const getExistingDepts = () => {
 
-    connection.query("SELECT DISTINCT department_name FROM products", (err, res) => {
+    connection.query("SELECT DISTINCT department_name FROM departments", (err, res) => {
         const result = res.map(item => item.department_name);
 
         updateInventoryArray([], result);

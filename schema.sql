@@ -18,14 +18,3 @@ CREATE TABLE departments(
     over_head_costs DECIMAL(10,2),
     PRIMARY KEY (department_id)
 );
-
-SELECT * from products;
-
-SELECT * FROM departments;
-
-DROP table products;
-
-SELECT d.department_id, d.department_name, d.over_head_costs, SUM(p.product_sales ) AS product_sales, SUM(p.product_sales )-d.over_head_costs AS total_profit
-FROM departments d
-JOIN products p ON p.department_name = d.department_name
-GROUP BY p.department_name;
